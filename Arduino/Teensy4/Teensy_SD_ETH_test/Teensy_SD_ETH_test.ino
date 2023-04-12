@@ -1,48 +1,18 @@
-/*
- 
- Using Tindie development board for Teensy4.1
-
- created 18 Dec 2009 by David A. Mellis
- modified 9 Apr 2012 by Tom Igoe, based on work by Adrian McEwen
- modified 5 Apr 2023 by James Knea, for use with my H.A.L.O. project
-
- */
-
-#include <SPI.h>
 #include <SD.h>
-
-//#include <NativeEthernet.h>
-
-#define BUFF_SIZE 256
-#define PORT      8888
+#include <NativeEthernet.h>
 
 #define SERIAL_BAUD                   115200
 #define TRUE                          1
 #define FILENAME_MAX_LEN              8
 #define TXT_EXT_WITH_NULL_CHAR_LEN    5
-#define LOG_ITERATIONS                1000
-#define DELAY_MS                      1
-
-uint8_t buffer[BUFF_SIZE] = {0};
-
-// Enter a MAC address for your controller below.
-// Newer Ethernet shields have a MAC address printed on a sticker on the shield
+#define PORT      8888
+#define BUFF_SIZE 256
+// ETH variables
+IPAddress server(192,168,5,1); // IP address of the RPi WiFi AP
+EthernetClient client;// Initialize the Ethernet client library
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
-
-IPAddress server(192,168,5,1); // IP address of the RPi WiFi AP
-
-// Initialize the Ethernet client library
-EthernetClient client;
-
-
-
-// Variables to measure the speed
-unsigned long t0, dt;
-
-// variables for writing data
-int bytes_written = 0;
-
+uint8_t buffer[BUFF_SIZE] = {0};
 
 /* file variables */
 File myFile;
@@ -53,28 +23,42 @@ int idx = 0;
 bool filename_received = 0;
 String instr = "";
 
-
-
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(SERIAL_BAUD);
+  delay(3000);
+  initETH();
   delay(2000);
-
- // pinMode(4, OUTPUT);
- // pinMode(BUILTIN_SDCARD, OUTPUT);
-//  initETH();
-//  delay(2000);
- 
   instr.reserve(13);
-  initSD();    // MUST USE A FAT32 FORMATTED SD CARD, AND MAKE SURE TO EJECT PROPERLY (more important to keep character count within limit specified above);
-  delay(2000);
-
-  init_buf(buffer, 256);
+  init_sd();                               // MUST USE A FAT32 FORMATTED SD CARD, AND MAKE SURE TO EJECT PROPERLY (more important to keep character count within limit specified above);
+  init_buf(buffer, BUFF_SIZE);
 }
 
-/*
+
+void init_buf(uint8_t *buf, int n)
+{
+  for (int i = 0; i < n; i++) {
+    buf[i] = i;
+  }
+}
+
+
+void loop() 
+{
+  for (int i = 0; i < 5; i++)
+  {
+    client.write(buffer, BUFF_SIZE);
+    delay(1000);
+    myFile.print("x,");
+    delay(1000);
+  }
+  Serial.println("Done!");
+  while(1);
+}
+
+
+
 void initETH()
 {
-  Ethernet.init(4);
   Serial.println("Initialize Ethernet with DHCP:");
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
@@ -83,6 +67,8 @@ void initETH()
     Serial.print("  DHCP assigned IP ");
     Serial.println(Ethernet.localIP());
   }
+  
+  while(1);
 
   delay(1000);
   Serial.print("connecting to ");
@@ -98,41 +84,10 @@ void initETH()
     Serial.println("connection failed");
   }
 }
-*/
-
-void init_buf(uint8_t *buf, int n)
-{
-  for (int i = 0; i < n; i++) {
-    buf[i] = i;
-  }
-}
-
-
-void loop() {
-  for (int i = 0; i < LOG_ITERATIONS; i++)
-  {
-    t0 = micros();
-//    bytes_written = client.write(buffer, BUFF_SIZE);  // write data to the server
-    dt = micros() - t0;
-    myFile.print("h");
-    myFile.print(",");
- //   Serial.println(dt);
-    delay(1);
- //   delay(1000);
-  }
-  Serial.println("done logging!");
-  while(1)
-  {
-    delay(DELAY_MS);
-  }
-}
 
 
 
-
-
-
-void initSD() {
+void init_sd() {
   if (!SD.begin(BUILTIN_SDCARD)) {
     Serial.println(F("SD CARD FAILED, OR NOT PRESENT!"));
     while (1);
@@ -159,11 +114,13 @@ void initSD() {
      }
   }
   myFile = SD.open(fname, FILE_WRITE);
-  myFile.write("hello world!");
   Serial.println("File opened for writing!");
+  myFile.println("Hello world!");
+  Serial.println("Wrote to file!");
+  myFile.close();
 }
 
-// helper function for init_sd
+
 void getFilename() {
     // get a valid nam  SERIAL.println("Enter the desired filename (without .txt and must be <= 8 characters) : ");
   while (Serial.available()) { Serial.read(); }  // clear garbage chars
@@ -189,6 +146,4 @@ void getFilename() {
   Serial.print("you entered : ");
   Serial.println(fname);
 }
-
-
 
