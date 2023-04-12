@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from statistics import mean, median, mode, stdev
-    
+
 
 def WaveshareCANData():
     f = open("../TestData/WaveshareCANData/CAN_SPI_2M.txt", 'r')
@@ -142,13 +142,71 @@ def TeensyIMUSPIData():
  #   plt.show()
 
 
+def Teensy1B2M():
+    f = open("../TestData/1b2m0xA1.txt", 'r')
+    total_time = f.readlines()[0].split(',')
+    total_time = [float(i) for i in total_time[1:-1]]
+    for i in range(len(total_time)):
+        if (total_time[i] > 490):
+            print(i)
+    f.close()
+    print("Max of data is : ", max(total_time))
+    print("Mean of data is : ", mean(total_time))
+    print("Median of data is : ", median(total_time))
+    print("Mode of data is : ", mode(total_time))
+    print("Std dev of data is : ", stdev(total_time))
+    print("mean + 6*Std dev of data is : ",mean(total_time) + 6*stdev(total_time))
+    print()
+
+    plt.boxplot([total_time])
+    plt.xticks([1], ["Zero Torque Command"])
+    plt.grid()
+    plt.title("Teensy 4.1 One CAN Bus Two Motors\ntwo commands, two replies + reply data")
+    plt.ylabel("Time (us)")
+    plt.show()
+
+def TeensyMotorComparison():
+    f = open("../TestData/TeensyCANData/CAN_1ms.txt", 'r')
+    total_time0 = []
+    data = f.readlines()
+    for i in range(1, len(data)):
+        data[i] = data[i][:-1]   # remove newline character
+        nums = [int(val) for val in data[i].split(",")]
+        total_time0.append(nums[3])
+    f.close()
+    f = open("../TestData/1b2m0xA1.txt", 'r')
+    total_time1 = f.readlines()[0].split(',')
+    total_time1 = [float(i) for i in total_time1[1:-1]]
+    f.close()
+    plt.boxplot([total_time0, total_time1])
+    plt.xticks([1, 2], ["1B1M","1B2M"])
+    plt.ylabel("Time (us)")
+    plt.grid()
+    plt.show()
+    print_stats(total_time0)
+    print_stats(total_time1)
+
+
+def print_stats(total_time):
+    print("Max of data is : ", max(total_time))
+    print("Mean of data is : ", mean(total_time))
+    print("Median of data is : ", median(total_time))
+    print("Mode of data is : ", mode(total_time))
+    print("Std dev of data is : ", stdev(total_time))
+    print("mean + 6*Std dev of data is : ",mean(total_time) + 6*stdev(total_time))
+    print()
+
+
 if __name__ == "__main__":
     #directory = input("Enter the directory to process: ")
     #if directory == "WaveshareCANData":
-        WaveshareCANData()
+#        WaveshareCANData()
     #elif directory == "TeensyCANData":
-        TeensyCANData()
+#        TeensyCANData()
     #elif directory == "TeensyCANFDData":
-        TeensyCANFDData()
+#        TeensyCANFDData()
     #elif directory == "TeensyIMUSPIData":
-        TeensyIMUSPIData()
+#        TeensyIMUSPIData()
+#    Teensy1B2M();
+    TeensyMotorComparison()
+
