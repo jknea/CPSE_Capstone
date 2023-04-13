@@ -197,6 +197,28 @@ def print_stats(total_time):
     print()
 
 
+def TeensyETHData():
+    f = open("../TestData/eth_256B_1ms_delay_1000samples.txt", 'r')
+#    print(f.readlines())
+    total_time = [float(i.replace('\n','')) for i in f.readlines()]
+  #  total_time = f.readlines()[0].split(',')
+  #  total_time = [float(i) for i in total_time[:-1]]
+    f.close()
+    print("Max of data is : ", max(total_time))
+    print("Mean of data is : ", mean(total_time))
+    print("Median of data is : ", median(total_time))
+    print("Mode of data is : ", mode(total_time))
+    print("Std dev of data is : ", stdev(total_time))
+    print("mean + 6*Std dev of data is : ",mean(total_time) + 6*stdev(total_time))
+    print()
+
+    plt.boxplot([total_time])
+    plt.xticks([1], ["1MS_DELAY"])
+    plt.grid()
+    plt.title("Teensy 4.1 ETH Test\n256B buffers")
+    plt.ylabel("Time (us)")
+    plt.show()
+
 if __name__ == "__main__":
     #directory = input("Enter the directory to process: ")
     #if directory == "WaveshareCANData":
@@ -208,5 +230,5 @@ if __name__ == "__main__":
     #elif directory == "TeensyIMUSPIData":
 #        TeensyIMUSPIData()
 #    Teensy1B2M();
-    TeensyMotorComparison()
-
+#    TeensyMotorComparison()
+    TeensyETHData()
