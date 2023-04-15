@@ -24,6 +24,8 @@ const int RMD_CAN_ID = 0x141;
 CAN_message_t zero_torque;
 bool received = 0;
 
+// timing vars
+unsigned long t0, dt;
 
 void setup() 
 {
@@ -35,12 +37,25 @@ void setup()
   delay(1000);
 }
 
+union eth
+{
+  long lng;
+  unsigned char bytes[4];
+};
+
+union eth ethun;
 
 void loop() 
 {
+  t0 = micros();
+  for (int i = 1; i < 8; ++i) {
+    zero_torque.buf[i] = 0;
+  }
   can1.write(zero_torque);
   while(!received) { wait(1); }
-  client.write(eth_buf, BUFF_SIZE);
+  dt = micros() - t0;
+  ethun.lng = dt;
+  client.write(ethun.bytes, 4);
   delay(DELAY_MS);
 }
 
