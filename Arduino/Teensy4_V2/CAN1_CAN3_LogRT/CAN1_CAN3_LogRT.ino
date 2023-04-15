@@ -9,12 +9,11 @@ There are two CAN2.0 buses with one motor per bus.
 #define BUFF_SIZE 8
 #define PORT      8888
 #define CAN_1M    1000000
-#define DELAY_MS  1000
+#define DELAY_MS  1
 
 
 /* CANBus Variables */
 FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16> can1;  // can1 port 
-FlexCAN_T4<CAN2, RX_SIZE_256, TX_SIZE_16> can2;  // can1 port 
 FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_16> can3;  // can1 port 
 
 const int RMD_CAN_ID0 = 0x145;
@@ -94,7 +93,7 @@ void loop()
       delay(1);
     }
   }
-  delay(1);
+  delay(DELAY_MS);
 }
 
 
@@ -172,22 +171,18 @@ void initCAN() {
 
   zero_torque0.buf[0] = 0xA1;
   zero_torque1.buf[0] = 0xA1;
-  // initialize zero torque buffers
+
   for (int i = 1; i < 8; ++i) {
     zero_torque0.buf[i] = 0;
     zero_torque1.buf[i] = 0;
   }
 
-
   can1.begin();
-  //can2.begin();
   can3.begin();
 
   can1.setBaudRate(CAN_1M);     // 1 Mbps data rate
   can3.setBaudRate(CAN_1M);     // 1 Mbps data rate
   
- // can2.setBaudRate(CAN_1M);     // 1 Mbps data rate
-
 }
 
 
