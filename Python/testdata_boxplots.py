@@ -132,8 +132,14 @@ def Teensy2B1MData():
     f = open("../TestData/2b1m_can1_can3.txt", 'r')
     total_time0 = [float(i.replace('\n','')) for i in f.readlines()]
     f.close()
-
-
+        
+    plt.boxplot([total_time0])
+    plt.xticks([1], ["1MS_DELAY"])
+    plt.grid()
+    plt.title("Teensy 4.1 Two CAN Buses, One Motor Per Bus")
+    plt.ylabel("Time (us)")
+    plt.show()
+'''
     f = open("../TestData/TeensyCANData/CAN_1ms.txt", 'r')
     total_time = []
     data = f.readlines()
@@ -142,16 +148,14 @@ def Teensy2B1MData():
         data[i] = data[i][:-1]   # remove newline character
         nums = [int(val) for val in data[i].split(",")]
         total_time.append(nums[3])
-
-
-
+        
     plt.boxplot([total_time0, total_time])
     plt.xticks([1, 2], ["2B1M", "1B1M"])
     plt.grid()
     plt.title("")
     plt.ylabel("Time (us)")
     plt.show()
-    
+'''
 
 def print_stats(total_time):
     print("Max of data is : ", max(total_time))
