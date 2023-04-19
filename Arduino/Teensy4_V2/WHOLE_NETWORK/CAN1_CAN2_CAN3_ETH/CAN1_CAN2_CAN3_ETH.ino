@@ -9,7 +9,7 @@ Do not print to serial after using CAN2
 #define BUFF_SIZE 8
 #define PORT      8888
 #define CAN_1M    1000000
-#define DELAY_MS  10
+#define DELAY_MS  1
 
 
 /* CANBus Variables */
@@ -17,8 +17,8 @@ FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16> can1;  // can1 port
 FlexCAN_T4<CAN2, RX_SIZE_256, TX_SIZE_16> can2;  // can1 port 
 FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_16> can3;  // can1 port 
 
-const int RMD_CAN_ID0 = 0x145;    // RMD ID for CAN1
-const int RMD_CAN_ID1 = 0x141;    // RMD ID for CAN3
+const int RMD_CAN_ID0 = 0x141;    // RMD ID for CAN1
+const int RMD_CAN_ID1 = 0x145;    // RMD ID for CAN3
 const int IMU_CAN_ID = 0x300;     // IMU ID for CAN2
 
 CAN_message_t msg;
@@ -47,12 +47,12 @@ uint8_t eth_buf[3*BUFF_SIZE] = {0};
 
 void setup() 
 {
- // Serial.begin(115200);
+  Serial.begin(115200);
   delay(2000);
   initETH();
   delay(2000);
   initCAN();
-  delay(2000);
+  delay(10000);
 }
 
 bool flag1 = 0, flag2 = 0, flag3 = 0;
@@ -65,7 +65,9 @@ unsigned count = 0;
 void loop() 
 {
   t0 = micros();
+//  Serial.println("Sending");
   send_all();
+//  Serial.println("receiving");
   recv_all();
   dt = micros() - t0;
   for (int i = 0; i < 8; i++)
@@ -81,49 +83,6 @@ void loop()
 }
 
 
-void send_all()
-{
-  while(! (flag2))
-  {
-
-    if (!flag2) 
-    {
-      ok = can3.write(imu_command);
-      if (ok == 1)
-      {
-        flag2 = 1;
-      }
-    }
-  }
-
-  // clear flags
-  flag1 = 0;
-  flag2 = 0;
-  flag3 = 0;
-}
-
-
-void recv_all()
-{
-
-  while(! (flag2))
-  {
-    if (!flag2) 
-    {
-      ok = can3.read(msg_recv2);
-      if (ok == 1)
-      {
-        flag2 = 1;
-      }
-    }
-  }
-
-  flag1 = 0;
-  flag2 = 0;
-  flag3 = 0;
-}
-
-/*
 void send_all()
 {
   while(! (flag1 && flag2 && flag3))
@@ -158,10 +117,8 @@ void send_all()
   flag2 = 0;
   flag3 = 0;
 }
-*/
 
 
-/*
 void recv_all()
 {
   while(! ( flag3 && flag2 && flag1))
@@ -195,7 +152,6 @@ void recv_all()
   flag2 = 0;
   flag3 = 0;
 }
-*/
 
 
 void wait(unsigned us) {
@@ -219,11 +175,11 @@ void initCAN() {
     imu_command.buf[i] = i;
   }
 
-//  can1.begin();
-//  can2.begin();
+  can1.begin();
+  can2.begin();
   can3.begin();
-//  can1.setBaudRate(CAN_1M);     // 1 Mbps data rate
-//  can2.setBaudRate(1000000);
+  can1.setBaudRate(CAN_1M);     // 1 Mbps data rate
+  can2.setBaudRate(CAN_1M);
   can3.setBaudRate(CAN_1M);     // 1 Mbps data rate
 }
 
@@ -231,10 +187,10 @@ void initCAN() {
 
 void initETH()
 {
-//  Serial.println("Initialize Ethernet with DHCP:");
-  Ethernet.init(2);
+  Serial.println("Initialize Ethernet with DHCP:");
+  //Ethernet.init(2);
   if (Ethernet.begin(mac) == 0) {
-//    Serial.println("Failed to configure Ethernet using DHCP");
+    Serial.println("Failed to configure Ethernet using DHCP");
   }
   else {
 //    Serial.print("  DHCP assigned IP ");

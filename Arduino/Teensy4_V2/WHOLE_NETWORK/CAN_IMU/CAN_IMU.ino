@@ -34,7 +34,11 @@ void loop()
   {
     imu_data.buf[i] = i+count;
   }
-  //count++;
+  count++;
+  if (count > 255)
+  {
+    count = 0;
+  }
 //  Serial.peek();
   wait(500);
   send_all();
