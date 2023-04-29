@@ -1,12 +1,5 @@
 **About**  
-This directory contains RPi C codes for client and multi-server devices.  The multi-client file is a single client to a multi-server.  I ran the multi-server file on RPi4 and connected my laptop and another RPi (3B+) as clients.  I was able to read data at 100Hz from both clients.  
-
-For one device (pi zero w) sending two floats (to Pi4) and receiving one float:  
-100Hz, actual 99 Hz  
-200Hz, actual 194 Hz  
-300Hz, actual 287 Hz  
-400Hz, actual 376 Hz  
-500Hz, actual 467 Hz  
+This directory contains RPi C codes for client and multi-server devices.  The multi-client file is a single client to a multi-server.  I ran the multi-server file on RPi4 and connected my laptop and another RPi (3B+) as clients.  
 
 **ToDos:**  
 - Extend and test with a third client (remote base station)  
